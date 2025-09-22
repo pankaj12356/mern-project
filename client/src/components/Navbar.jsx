@@ -23,8 +23,14 @@ const Navbar = () => {
           <Button color="inherit" component={Link} to="/tools/uuid">
             Tools
           </Button>
-          <Button color="inherit" component={Link} to="/">
+          <Button color="inherit" component={Link} to="user/dashboard">
+            dashboard
+          </Button>
+          <Button color="inherit" component={Link} to="signin">
             Sign In
+          </Button>
+          <Button color="inherit" component={Link} to="register">
+            Register
           </Button>
         </div>
       </Toolbar>

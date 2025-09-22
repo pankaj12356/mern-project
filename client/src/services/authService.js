@@ -2,7 +2,8 @@
 
 import axios from 'axios';
 
-const API = 'http://localhost:4000/api/auth'; // Update when backend is ready
+const API =  `${import.meta.env.VITE_BACKEND_URL}/auth`;
+ // Update when backend is ready
 
 export const loginUser = async (credentials) => {
   // Replace with real API call later
