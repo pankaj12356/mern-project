@@ -1,5 +1,3 @@
-// src/components/ProtectedRoute.jsx
-
 import React, { useContext } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -12,14 +10,23 @@ import { AuthContext } from '../context/AuthContext';
  * @returns {JSX.Element} - Either the nested route or a redirect to login
  */
 const ProtectedRoute = ({ allowedRoles }) => {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
 
-  // If no user is logged in, redirect to login
-  if (!user || !user.token) {
-    return <Navigate to="/" replace />;
+  // Wait for auth context to finish loading
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600 text-lg">Checking access...</p>
+      </div>
+    );
   }
 
-  // If user's role is not allowed, redirect to login
+  // If no user is logged in, redirect to signin
+  if (!user) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  // If user's role is not allowed, redirect to home
   if (!allowedRoles.includes(user.role)) {
     return <Navigate to="/" replace />;
   }

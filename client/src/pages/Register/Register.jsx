@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { TextField, Button, MenuItem, Typography, Avatar } from '@mui/material';
-import { registerUser } from '../../services/authService';
+import { registerUser, getCurrentUser } from '../../services/authService';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 
-const roles = ['user', 'admin'];
+const roles = ['student', 'employee', 'corporation'];
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -12,13 +13,14 @@ const Register = () => {
     username: '',
     email: '',
     password: '',
-    role: 'user',
+    role: '',
     profileImage: null,
   });
 
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // Access login from context
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -31,50 +33,38 @@ const Register = () => {
     }
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setError('');
-
-  //   try {
-  //     const payload = new FormData();
-  //     Object.entries(formData).forEach(([key, value]) => {
-  //       if (value) payload.append(key, value);
-  //     });
-
-  //     const res = await registerUser(payload);
-  //     console.log('✅ Registered:', res.data);
-  //     navigate('/user/dashboard');
-  //   } catch (err) {
-  //     console.error('❌ Registration failed:', err.response?.data || err.message);
-  //     setError(err.response?.data?.message || 'Registration failed');
-  //   }
-  // };
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
+    e.preventDefault();
+    setError('');
 
-  try {
-    const payload = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) payload.append(key, value);
-    });
+    try {
+      const payload = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) payload.append(key, value);
+      });
 
-    const res = await registerUser(payload);
-    console.log('✅ Response from backend:', res);
+      console.log('📤 Sending registration request...');
+      console.log('Payload:', formData);
 
-    if (res.status === 201 && res.data?.user) {
-      alert(`✅ Welcome ${res.data.user.firstName}! Your account has been created.`);
-      navigate('/signin');
-    } else {
-      setError('Unexpected response from server.');
+      const res = await registerUser(payload);
+      console.log('✅ Response from backend:', res);
+
+      if (res.status === 201 && res.data?.user) {
+        alert(`✅ Welcome ${res.data.user.firstName}! Your account has been created.`);
+
+        // Fetch current user using cookie-based token
+        const profileRes = await getCurrentUser();
+        login(profileRes.data.user.username, profileRes.data.user.role); // Update context
+
+        navigate('/user/dashboard');
+      } else {
+        setError('Unexpected response from server.');
+      }
+    } catch (err) {
+      console.error('❌ Registration failed:', err.response?.data || err.message);
+      setError(err.response?.data?.message || 'Registration failed');
     }
-    console.log('📤 Sending registration request...');
-console.log('Payload:', formData);
-  } catch (err) {
-    console.error('❌ Registration failed:', err.response?.data || err.message);
-    setError(err.response?.data?.message || 'Registration failed');
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -142,6 +132,7 @@ console.log('Payload:', formData);
           value={formData.role}
           onChange={handleChange}
           fullWidth
+          required
         >
           {roles.map((role) => (
             <MenuItem key={role} value={role}>
