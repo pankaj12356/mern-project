@@ -1,44 +1,54 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { getCurrentUser } from '../services/authService';
 
-// Create context
 export const AuthContext = createContext();
 
-// Provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null); // Full user object
-  const [loading, setLoading] = useState(true); // For initial fetch
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Login: set full user object
   const login = (userData) => {
-    console.log('🔐 login() called with:', userData);
-    setUser(userData);
-    localStorage.setItem('coderzhub-user', JSON.stringify(userData));
+    const patchedUser = {
+      ...userData,
+      id: userData.id || userData._id, // ✅ Ensure `id` is present
+    };
+    setUser(patchedUser);
+    localStorage.setItem('coderzhub-user', JSON.stringify(patchedUser));
   };
 
-  // Logout: clear user and localStorage
   const logout = () => {
-    console.log('🚪 logout() called');
     setUser(null);
     localStorage.removeItem('coderzhub-user');
   };
 
-  // Auto-fetch user from backend on mount
   useEffect(() => {
     const fetchUser = async () => {
-      console.log('🔄 Attempting to fetch user from /profile...');
       try {
-        const res = await getCurrentUser(); // GET /api/auth/profile
-        console.log('✅ User fetched from backend:', res.data.user);
-        setUser(res.data.user);
-        localStorage.setItem('coderzhub-user', JSON.stringify(res.data.user));
+        const res = await getCurrentUser();
+        const patchedUser = {
+          ...res.data.user,
+          id: res.data.user.id || res.data.user._id, // ✅ Patch `id`
+        };
+        setUser(patchedUser);
+        localStorage.setItem('coderzhub-user', JSON.stringify(patchedUser));
       } catch (err) {
-        console.warn('⚠️ No active session or fetch failed:', err.message);
-        setUser(null);
-        localStorage.removeItem('coderzhub-user');
+        const cached = localStorage.getItem('coderzhub-user');
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            const patched = {
+              ...parsed,
+              id: parsed.id || parsed._id,
+            };
+            setUser(patched);
+          } catch {
+            localStorage.removeItem('coderzhub-user');
+          }
+        } else {
+          setUser(null);
+        }
       } finally {
         setLoading(false);
-        console.log('⏱️ Auth loading complete');
       }
     };
 
@@ -46,15 +56,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        setUser, // ✅ Now exposed to consumers
-        login,
-        logout,
-        loading,
-      }}
-    >
+    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,10 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Divider, Button } from '@mui/material';
-import { Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../../context/AuthContext';
 import Loader from '../../components/Loader';
-
 import WelcomeSection from '../../components/DashBoard/WelcomeSection';
 import ProfileCard from '../../components/DashBoard/ProfileCard';
 import UpdateFields from '../../components/DashBoard/UpdateFields';
@@ -22,7 +20,6 @@ const UserDashboard = () => {
     confirmPassword: '',
   });
 
-  const [formReady, setFormReady] = useState(false);
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -30,8 +27,9 @@ const UserDashboard = () => {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [showImageForm, setShowImageForm] = useState(false);
 
+  // ✅ Sync form data once user is ready
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       setFormData({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -40,17 +38,14 @@ const UserDashboard = () => {
         newPassword: '',
         confirmPassword: '',
       });
-      setFormReady(true); // ✅ mark form as ready
     }
   }, [user]);
 
-  // ✅ Guard: Wait for session and formData to be ready
-  if (loading || !user || !formReady) {
-    console.log('⏳ Waiting for user and formData to sync...');
+  // ✅ Guard: Wait for session to hydrate
+  if (loading || !user?.id) {
+    console.log('⏳ Waiting for session to sync...');
     return <Loader message="Preparing dashboard..." fullScreen />;
   }
-
-  if (!user) return <Navigate to="/signin" replace />;
 
   const handleLogout = async () => {
     try {
@@ -62,28 +57,33 @@ const UserDashboard = () => {
   };
 
   const handleProfileUpdate = async () => {
-    if (!user || !user.id) {
-      setError('❌ User session not ready. Please try again.');
+    if (!user?.id) {
+      setError('⏳ Session not ready. Please wait and try again.');
+      return;
+    }
+
+    if (!formData.firstName || !formData.lastName || !formData.username) {
+      setError('⚠️ All fields are required');
       return;
     }
 
     setIsUpdating(true);
     setError('');
-    console.log('📦 Sending update:', formData);
 
     try {
       const res = await axios.put('/api/auth/update-profile', formData, {
         withCredentials: true,
       });
 
-      if (res.data.user && typeof setUser === 'function') {
-        setUser(res.data.user);
-        alert('✅ Profile updated');
-      } else {
-        setError('⚠️ Unexpected response format');
-      }
+      const patched = {
+        ...res.data.user,
+        id: res.data.user.id || res.data.user._id,
+      };
+      setUser(patched);
+      alert('✅ Profile updated');
     } catch (err) {
-      setError(err.response?.data?.message || '❌ Profile update failed');
+      console.error('❌ Update failed:', err.message);
+      setError(err.response?.data?.message || 'Internal server error');
     } finally {
       setIsUpdating(false);
     }
@@ -139,10 +139,12 @@ const UserDashboard = () => {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      if (res.data.user && typeof setUser === 'function') {
-        setUser(res.data.user);
-        alert('🖼️ Image updated');
-      }
+      const patched = {
+        ...res.data.user,
+        id: res.data.user.id || res.data.user._id,
+      };
+      setUser(patched);
+      alert('🖼️ Image updated');
     } catch (err) {
       setError('❌ Image upload failed');
     } finally {
@@ -184,6 +186,7 @@ const UserDashboard = () => {
           handlePasswordUpdate={handlePasswordUpdate}
           handleImageUpload={handleImageUpload}
           isUpdating={isUpdating}
+          user={user}
         />
 
         <Divider />
