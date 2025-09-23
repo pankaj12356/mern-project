@@ -2,23 +2,21 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App'; // Main app component with routes
-import './index.css';    // Tailwind CSS directives
-import { AuthProvider } from './context/AuthContext'; // Global auth context
-import { CssBaseline } from '@mui/material'; // MUI baseline styles
+import App from './App';
+import './index.css';
 
-// Create root element using React 18's createRoot API
+// import { CssBaseline, ThemeProvider } from '@mui/material';
+import { AuthProvider } from './context/AuthContext';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// Render the app inside the root element
 root.render(
   <React.StrictMode>
-    {/* MUI baseline resets default browser styles */}
-    <CssBaseline />
-
-    {/* AuthProvider wraps the app to provide user/token context */}
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+  
+      
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    
   </React.StrictMode>
 );

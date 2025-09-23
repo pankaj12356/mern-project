@@ -1,19 +1,56 @@
-import { useContext, useState } from 'react';
-import { AuthContext } from '../../context/AuthContext';
-import { Typography, Card, CardContent, Avatar, Button, TextField } from '@mui/material';
-import axios from 'axios';
+import React, { useContext, useState, useEffect } from 'react';
+import { Box, Divider, Button } from '@mui/material';
 import { Navigate } from 'react-router-dom';
+import axios from 'axios';
+import { AuthContext } from '../../context/AuthContext';
+import Loader from '../../components/Loader';
+
+import WelcomeSection from '../../components/DashBoard/WelcomeSection';
+import ProfileCard from '../../components/DashBoard/ProfileCard';
+import UpdateFields from '../../components/DashBoard/UpdateFields';
+import ExtraPartsSection from '../../components/DashBoard/ExtraPartsSection';
 
 const UserDashboard = () => {
-  const { user, logout, loading } = useContext(AuthContext);
+  const { user, setUser, logout, loading } = useContext(AuthContext);
+
   const [formData, setFormData] = useState({
-    firstname: user?.firstname || '',
-    lastname: user?.lastname || '',
-    username: user?.username || '',
+    firstName: '',
+    lastName: '',
+    username: '',
     oldPassword: '',
     newPassword: '',
+    confirmPassword: '',
   });
+
+  const [formReady, setFormReady] = useState(false);
   const [image, setImage] = useState(null);
+  const [error, setError] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [showProfileForm, setShowProfileForm] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showImageForm, setShowImageForm] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        username: user.username || '',
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
+      setFormReady(true); // ✅ mark form as ready
+    }
+  }, [user]);
+
+  // ✅ Guard: Wait for session and formData to be ready
+  if (loading || !user || !formReady) {
+    console.log('⏳ Waiting for user and formData to sync...');
+    return <Loader message="Preparing dashboard..." fullScreen />;
+  }
+
+  if (!user) return <Navigate to="/signin" replace />;
 
   const handleLogout = async () => {
     try {
@@ -25,28 +62,74 @@ const UserDashboard = () => {
   };
 
   const handleProfileUpdate = async () => {
+    if (!user || !user.id) {
+      setError('❌ User session not ready. Please try again.');
+      return;
+    }
+
+    setIsUpdating(true);
+    setError('');
+    console.log('📦 Sending update:', formData);
+
     try {
-      await axios.put('/api/auth/update-profile', formData, { withCredentials: true });
-      alert('✅ Profile updated');
+      const res = await axios.put('/api/auth/update-profile', formData, {
+        withCredentials: true,
+      });
+
+      if (res.data.user && typeof setUser === 'function') {
+        setUser(res.data.user);
+        alert('✅ Profile updated');
+      } else {
+        setError('⚠️ Unexpected response format');
+      }
     } catch (err) {
-      console.error('❌ Profile update failed:', err.message);
+      setError(err.response?.data?.message || '❌ Profile update failed');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handlePasswordUpdate = async () => {
+    setIsUpdating(true);
+    setError('');
+
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError('❌ New password and confirm password do not match');
+      setIsUpdating(false);
+      return;
+    }
+
     try {
-      await axios.put('/api/auth/update-password', {
-        oldPassword: formData.oldPassword,
-        newPassword: formData.newPassword,
-      }, { withCredentials: true });
+      await axios.put(
+        '/api/auth/update-password',
+        {
+          oldPassword: formData.oldPassword.trim(),
+          newPassword: formData.newPassword,
+        },
+        { withCredentials: true }
+      );
       alert('🔐 Password updated');
+      setFormData({
+        ...formData,
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
     } catch (err) {
-      console.error('❌ Password update failed:', err.message);
+      setError(err.response?.data?.message || '❌ Password update failed');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleImageUpload = async () => {
-    if (!image) return alert('Please select an image');
+    setIsUpdating(true);
+    if (!image) {
+      alert('Please select an image');
+      setIsUpdating(false);
+      return;
+    }
+
     const form = new FormData();
     form.append('image', image);
 
@@ -55,66 +138,58 @@ const UserDashboard = () => {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      alert('🖼️ Image updated');
+
+      if (res.data.user && typeof setUser === 'function') {
+        setUser(res.data.user);
+        alert('🖼️ Image updated');
+      }
     } catch (err) {
-      console.error('❌ Image upload failed:', err.message);
+      setError('❌ Image upload failed');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Typography variant="h6" color="textSecondary">Loading dashboard...</Typography>
-      </div>
-    );
-  }
-
-  if (!user) return <Navigate to="/signin" replace />;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <Typography variant="h4" className="text-gray-800 font-semibold">
-          Welcome, {user.firstname || user.username} 👋
-        </Typography>
+    <Box className="min-h-screen bg-gray-50 p-6">
+      <Box className="max-w-6xl mx-auto space-y-8">
+        <WelcomeSection user={user} />
+        <ProfileCard user={user} />
 
-        <Card className="shadow-md">
-          <CardContent className="flex items-center gap-6">
-            <Avatar src={user.profileImage} alt={user.username} sx={{ width: 64, height: 64 }} />
-            <div>
-              <Typography variant="h6">{user.username}</Typography>
-              <Typography variant="body2">{user.email}</Typography>
-              <Typography variant="body2">Role: {user.role}</Typography>
-            </div>
-          </CardContent>
-        </Card>
+        <Box className="flex flex-wrap gap-4">
+          <Button variant="contained" onClick={() => setShowProfileForm(!showProfileForm)}>
+            Edit Profile
+          </Button>
+          <Button variant="contained" color="warning" onClick={() => setShowPasswordForm(!showPasswordForm)}>
+            Change Password
+          </Button>
+          <Button variant="contained" color="secondary" onClick={() => setShowImageForm(!showImageForm)}>
+            Update Image
+          </Button>
+          <Button variant="outlined" color="error" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Box>
 
-        <Card className="shadow-sm p-4 space-y-4">
-          <Typography variant="h6">Update Profile</Typography>
-          <TextField label="First Name" fullWidth value={formData.firstname} onChange={e => setFormData({ ...formData, firstname: e.target.value })} />
-          <TextField label="Last Name" fullWidth value={formData.lastname} onChange={e => setFormData({ ...formData, lastname: e.target.value })} />
-          <TextField label="Username" fullWidth value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
-          <Button variant="contained" onClick={handleProfileUpdate}>Save Profile</Button>
-        </Card>
+        <UpdateFields
+          formData={formData}
+          setFormData={setFormData}
+          image={image}
+          setImage={setImage}
+          error={error}
+          showProfileForm={showProfileForm}
+          showPasswordForm={showPasswordForm}
+          showImageForm={showImageForm}
+          handleProfileUpdate={handleProfileUpdate}
+          handlePasswordUpdate={handlePasswordUpdate}
+          handleImageUpload={handleImageUpload}
+          isUpdating={isUpdating}
+        />
 
-        <Card className="shadow-sm p-4 space-y-4">
-          <Typography variant="h6">Change Password</Typography>
-          <TextField label="Old Password" type="password" fullWidth value={formData.oldPassword} onChange={e => setFormData({ ...formData, oldPassword: e.target.value })} />
-          <TextField label="New Password" type="password" fullWidth value={formData.newPassword} onChange={e => setFormData({ ...formData, newPassword: e.target.value })} />
-          <Button variant="contained" color="warning" onClick={handlePasswordUpdate}>Update Password</Button>
-        </Card>
-
-        <Card className="shadow-sm p-4 space-y-4">
-          <Typography variant="h6">Update Profile Image</Typography>
-          <input type="file" accept="image/*" onChange={e => setImage(e.target.files[0])} />
-          <Button variant="contained" color="secondary" onClick={handleImageUpload}>Upload Image</Button>
-        </Card>
-
-        <div className="flex justify-end">
-          <Button onClick={handleLogout} color="error" variant="outlined">Logout</Button>
-        </div>
-      </div>
-    </div>
+        <Divider />
+        <ExtraPartsSection />
+      </Box>
+    </Box>
   );
 };
 
