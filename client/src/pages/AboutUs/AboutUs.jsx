@@ -23,30 +23,30 @@ const team = [
 
 const AboutUs = () => {
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: '#E7F2EF', py: 8, px: 4 }}>
-      <Box sx={{ maxWidth: '1000px', mx: 'auto' }}>
-        {/* Header Block */}
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#E7F2EF', py: 10, px: 4 }}>
+      <Box sx={{ maxWidth: '1100px', mx: 'auto' }}>
+        {/* 🧭 Header Block */}
         <Box
           sx={{
             backgroundColor: '#A1C2BD',
-            borderRadius: 2,
-            py: 4,
-            px: 3,
-            mb: 6,
-            boxShadow: 3,
+            borderRadius: 3,
+            py: 5,
+            px: 4,
+            mb: 8,
+            boxShadow: 4,
             textAlign: 'center',
           }}
         >
           <Typography variant="h4" sx={{ color: '#19183B', fontWeight: 'bold', mb: 2 }}>
             About CoderzHub 👨‍💻
           </Typography>
-          <Typography variant="body1" sx={{ color: '#475569' }}>
+          <Typography variant="body1" sx={{ color: '#475569', maxWidth: 700, mx: 'auto' }}>
             CoderzHub is a developer-first platform built by three passionate creators — Pankaj, Khush, and Manali — to simplify your workflow with instant tools, setup sheets, and role-based dashboards.
           </Typography>
         </Box>
 
-        {/* Why We Built This */}
-        <Card sx={{ backgroundColor: '#FFFFFF', boxShadow: 3, borderRadius: 3, mb: 6 }}>
+        {/* 🚀 Why We Built This */}
+        <Card sx={{ backgroundColor: '#FFFFFF', boxShadow: 3, borderRadius: 3, mb: 8 }}>
           <CardContent>
             <Typography variant="h6" sx={{ color: '#10B981', mb: 2 }}>
               🚀 Why We Built This
@@ -57,43 +57,47 @@ const AboutUs = () => {
           </CardContent>
         </Card>
 
-        {/* Team Section */}
-        <Typography variant="h6" sx={{ color: '#10B981', mb: 2 }}>
+        {/* 👥 Meet the Team */}
+        <Typography variant="h6" sx={{ color: '#10B981', mb: 3 }}>
           👥 Meet the Team
         </Typography>
         <Grid container spacing={4}>
           {team.map((member) => (
-            <Grid item xs={12} sm={4} key={member.name}>
+            <Grid item xs={12} sm={6} md={4} key={member.name}>
               <Card
                 sx={{
                   backgroundColor: '#FFFFFF',
                   boxShadow: 2,
                   borderRadius: 3,
                   textAlign: 'center',
-                  py: 3,
+                  py: 4,
+                  px: 2,
+                  transition: 'transform 0.2s ease',
+                  '&:hover': { transform: 'scale(1.02)', boxShadow: 4 },
                 }}
               >
                 <CardContent>
                   <Avatar
                     sx={{
-                      bgcolor: '#A5B4FC',
-                      color: '#19183B',
+                      bgcolor: '#D1FAE5',
+                      color: '#065F46',
                       mx: 'auto',
                       mb: 2,
-                      width: 56,
-                      height: 56,
-                      fontSize: '1.5rem',
+                      width: 64,
+                      height: 64,
+                      fontSize: '1.75rem',
+                      border: '2px solid #10B981',
                     }}
                   >
                     {member.emoji}
                   </Avatar>
-                  <Typography variant="h6" sx={{ color: '#19183B' }}>
+                  <Typography variant="h6" sx={{ color: '#19183B', fontWeight: 600 }}>
                     {member.name}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#475569', mb: 1 }}>
                     {member.role}
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#64748B' }}>
+                  <Typography variant="body2" sx={{ color: '#64748B', fontSize: '0.875rem' }}>
                     {member.bio}
                   </Typography>
                 </CardContent>

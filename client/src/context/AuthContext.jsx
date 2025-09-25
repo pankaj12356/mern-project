@@ -7,13 +7,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const patchUser = (raw) => ({
+    ...raw,
+    id: raw?.id || raw?._id || null,
+  });
+
   const login = (userData) => {
-    const patchedUser = {
-      ...userData,
-      id: userData.id || userData._id, // ✅ Ensure `id` is present
-    };
-    setUser(patchedUser);
-    localStorage.setItem('coderzhub-user', JSON.stringify(patchedUser));
+    const patched = patchUser(userData);
+    setUser(patched);
+    localStorage.setItem('coderzhub-user', JSON.stringify(patched));
   };
 
   const logout = () => {
@@ -21,37 +23,31 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('coderzhub-user');
   };
 
+  const restoreFromCache = () => {
+    const cached = localStorage.getItem('coderzhub-user');
+    if (!cached) return null;
+    try {
+      const parsed = JSON.parse(cached);
+      return patchUser(parsed);
+    } catch {
+      localStorage.removeItem('coderzhub-user');
+      return null;
+    }
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await getCurrentUser();
-        const patchedUser = {
-          ...res.data.user,
-          id: res.data.user.id || res.data.user._id, // ✅ Patch `id`
-        };
-        setUser(patchedUser);
-        localStorage.setItem('coderzhub-user', JSON.stringify(patchedUser));
-      } catch (err) {
-        const cached = localStorage.getItem('coderzhub-user');
-        if (cached) {
-          try {
-            const parsed = JSON.parse(cached);
-            const patched = {
-              ...parsed,
-              id: parsed.id || parsed._id,
-            };
-            setUser(patched);
-          } catch {
-            localStorage.removeItem('coderzhub-user');
-          }
-        } else {
-          setUser(null);
-        }
+        const res = await getCurrentUser(); // ✅ Validates token
+        const patched = patchUser(res.data.user);
+        setUser(patched);
+        localStorage.setItem('coderzhub-user', JSON.stringify(patched));
+      } catch {
+        logout(); // ✅ Clear stale session if token fails
       } finally {
         setLoading(false);
       }
     };
-
     fetchUser();
   }, []);
 

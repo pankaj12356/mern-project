@@ -161,9 +161,10 @@ const SetupCommandsPage = () => {
                       label={extra}
                       size="small"
                       sx={{
-                        backgroundColor: '#A5B4FC',
-                        color: '#19183B',
+                        backgroundColor: '#D1FAE5',
+                        color: '#065F46',
                         fontWeight: 500,
+                        borderRadius: 1,
                       }}
                     />
                   ))}

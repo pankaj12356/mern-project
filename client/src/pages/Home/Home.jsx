@@ -1,5 +1,3 @@
-// src/pages/Home/Home.jsx
-
 import React from 'react';
 import {
   Box,
@@ -16,9 +14,9 @@ import { Link } from 'react-router-dom';
 const Home = () => {
   return (
     <Box sx={{ width: '100%', backgroundColor: '#E7F2EF', minHeight: '100vh' }}>
-      {/* Hero Section */}
-      <Box sx={{ width: '100%', py: 8, backgroundColor: '#A1C2BD' }}>
-        <Container maxWidth="xl">
+      {/* 🧠 Hero Section */}
+      <Box sx={{ py: 10, backgroundColor: '#A1C2BD' }}>
+        <Container maxWidth="lg">
           <Paper
             elevation={6}
             sx={{
@@ -27,6 +25,7 @@ const Home = () => {
               backgroundColor: '#ffffff',
               color: '#19183B',
               textAlign: 'center',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
             }}
           >
             <Typography
@@ -37,13 +36,13 @@ const Home = () => {
               Ready-Made Tools & Setup Snippets
             </Typography>
 
-            <Typography variant="h6" sx={{ mb: 4, color: '#475569', maxWidth: 800, mx: 'auto' }}>
+            <Typography variant="h6" sx={{ mb: 4, color: '#475569', maxWidth: 700, mx: 'auto' }}>
               CoderzHub gives you instant access to developer utilities, reusable snippets, and zero-config modules. No setup. No boilerplate. Just copy, paste, and build.
             </Typography>
 
             <Stack direction="row" spacing={2} flexWrap="wrap" justifyContent="center" sx={{ mb: 4 }}>
-              <Chip label="No installation needed" sx={{ backgroundColor: '#DDEBE7', color: '#19183B' }} />
-              <Chip label="Plug-and-play snippets" sx={{ backgroundColor: '#DDEBE7', color: '#19183B' }} />
+              <Chip label="No installation needed" sx={{ backgroundColor: '#D1FAE5', color: '#065F46' }} />
+              <Chip label="Plug-and-play snippets" sx={{ backgroundColor: '#D1FAE5', color: '#065F46' }} />
               <Chip label="Contributor-ready tools" sx={{ backgroundColor: '#6366f1', color: '#fff' }} />
             </Stack>
 
@@ -64,7 +63,7 @@ const Home = () => {
                   '&:hover': { borderColor: '#19183B', color: '#19183B' },
                 }}
                 component={Link}
-                to="/snippets"
+                to="/code"
               >
                 Explore Snippets
               </Button>
@@ -77,13 +76,13 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Featured Tools Section */}
-      <Box sx={{ width: '100%', py: 6 }}>
-        <Container maxWidth="xl">
-          <Typography variant="h5" fontWeight={600} sx={{ mb: 3, color: '#19183B' }}>
+      {/* 🧰 Featured Tools */}
+      <Box sx={{ py: 8 }}>
+        <Container maxWidth="lg">
+          <Typography variant="h5" fontWeight={600} sx={{ mb: 4, color: '#19183B', textAlign: 'center' }}>
             🧰 Featured Tools
           </Typography>
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {[
               { name: 'UUID Generator', icon: '🔑' },
               { name: 'Color Picker', icon: '🎨' },
@@ -99,7 +98,7 @@ const Home = () => {
                     color: '#19183B',
                     textAlign: 'center',
                     transition: 'transform 0.2s ease',
-                    '&:hover': { transform: 'scale(1.03)' },
+                    '&:hover': { transform: 'scale(1.03)', boxShadow: 6 },
                   }}
                 >
                   <Typography variant="h4" sx={{ mb: 1 }}>{tool.icon}</Typography>
@@ -125,13 +124,13 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Vision & Roadmap Section */}
-      <Box sx={{ width: '100%', py: 6, backgroundColor: '#E7F2EF' }}>
-        <Container maxWidth="xl">
-          <Typography variant="h5" fontWeight={600} sx={{ mb: 3, color: '#19183B' }}>
+      {/* 🚀 Vision & Roadmap */}
+      <Box sx={{ py: 8, backgroundColor: '#F4F7F6' }}>
+        <Container maxWidth="lg">
+          <Typography variant="h5" fontWeight={600} sx={{ mb: 4, color: '#19183B', textAlign: 'center' }}>
             🚀 Our Vision & Roadmap
           </Typography>
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {[
               {
                 title: 'Empower Contributors',
@@ -162,6 +161,7 @@ const Home = () => {
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                   }}
                 >
                   <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
@@ -177,21 +177,22 @@ const Home = () => {
         </Container>
       </Box>
 
-      {/* Footer Tip Section */}
-      <Box sx={{ width: '100%', py: 4, backgroundColor: '#DDEBE7' }}>
+      {/* 💡 Footer Tip */}
+      <Box sx={{ py: 6, backgroundColor: '#DDEBE7' }}>
         <Container maxWidth="md">
           <Paper
             elevation={2}
             sx={{
-              p: 3,
-              borderRadius: 2,
+              p: 4,
+              borderRadius: 3,
               backgroundColor: '#ffffff',
               color: '#19183B',
               textAlign: 'center',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}
           >
-            <Typography fontWeight={500}>💡 Contributor Tip:</Typography>
-            <Typography variant="body2" sx={{ mt: 1 }}>
+            <Typography fontWeight={600}>💡 Contributor Tip:</Typography>
+            <Typography variant="body2" sx={{ mt: 1, color: '#475569' }}>
               Every snippet you use is optimized for clarity, speed, and modularity. No clutter. Just clean code.
             </Typography>
           </Paper>

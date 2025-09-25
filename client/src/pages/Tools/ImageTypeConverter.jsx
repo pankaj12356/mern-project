@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -13,6 +13,17 @@ import {
   Alert,
   Divider,
 } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+const toolOptions = [
+  { path: '/tools/uuid', label: '🔑 UUID Generator' },
+  { path: '/tools/json', label: '🧠 JSON Formatter' },
+  { path: '/tools/jwt', label: '🔐 JWT Decoder' },
+  { path: '/tools/base64', label: '📦 Base64 Converter' },
+  { path: '/tools/space', label: '✂️ Space Remover' },
+  { path: '/tools/image-compressor', label: '📉 Image Compressor' },
+  { path: '/tools/image-type-converter', label: '🔄 Image Type Converter' },
+];
 
 const ImageTypeConverterPage = () => {
   const [imageSrc, setImageSrc] = useState(null);
@@ -21,6 +32,13 @@ const ImageTypeConverterPage = () => {
   const [format, setFormat] = useState('');
   const [error, setError] = useState('');
   const fileInputRef = useRef();
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    setFormat('');
+  }, [imageSrc]);
 
   const supportedFormats = ['jpeg', 'png', 'webp'];
 
@@ -100,23 +118,75 @@ const ImageTypeConverterPage = () => {
   };
 
   return (
-    <Box className="min-h-screen bg-white py-10 px-6">
-      <Box className="max-w-6xl mx-auto space-y-10">
-        {/* Title */}
-        <Typography variant="h3" className="text-indigo-600 font-bold text-center">
-          Image Type Converter 🔄
-        </Typography>
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#E7F2EF', py: 8, px: 4 }}>
+     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+  <Card sx={{ width: '100%', maxWidth: 800, boxShadow: 4, borderRadius: 3, mb: 6 }}>
+          <CardContent sx={{ px: 4, py: 6 }}>
+            {/* 🔙 Back + Switch Tool */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => navigate('/tools')}
+                sx={{
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  borderRadius: '20px',
+                  backgroundColor: '#F0FDF4',
+                  color: '#059669',
+                  '&:hover': { backgroundColor: '#D1FAE5' },
+                }}
+              >
+                ← Back to Tools
+              </Button>
 
-        {/* Upload Zone */}
-        <Card>
-          <CardContent className="space-y-4">
-            <Typography variant="h6">Upload Image</Typography>
+              <FormControl size="small" sx={{ minWidth: 220 }}>
+                <InputLabel>Switch Tool</InputLabel>
+                <Select
+                  value={location.pathname}
+                  label="Switch Tool"
+                  onChange={(e) => navigate(e.target.value)}
+                >
+                  {toolOptions.map((tool) => (
+                    <MenuItem key={tool.path} value={tool.path}>
+                      {tool.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            {/* 🧠 Title + Description */}
+            <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#19183B', textAlign: 'center', mb: 2 }}>
+              Image Type Converter 🔄
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#475569', textAlign: 'center', mb: 1 }}>
+              Convert images between JPEG, PNG, and WebP formats — all locally in your browser.
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#475569', textAlign: 'center', mb: 4 }}>
+              Preserve transparency, reduce size, or meet platform requirements without losing your original file.
+            </Typography>
+
+            {/* 📤 Upload Zone */}
             <Box
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               onClick={() => fileInputRef.current.click()}
-              className="border-2 border-dashed border-indigo-400 rounded-md p-6 text-center cursor-pointer bg-gray-50 hover:bg-indigo-50"
-              sx={{ minHeight: 200 }}
+              sx={{
+                border: '2px dashed #A5B4FC',
+                borderRadius: 2,
+                p: 4,
+                textAlign: 'center',
+                cursor: 'pointer',
+                backgroundColor: '#F3F4F6',
+                '&:hover': { backgroundColor: '#E0E7FF' },
+                mb: 3,
+                minHeight: 220,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexDirection: 'column',
+              }}
             >
               <Typography variant="body1">🖼️ Drag & Drop or Click to Upload</Typography>
               <input
@@ -128,11 +198,11 @@ const ImageTypeConverterPage = () => {
               />
             </Box>
 
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-            {/* Format Selector */}
+            {/* 🎛️ Format Selector */}
             {originalFormat && (
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={{ mb: 4 }}>
                 <InputLabel>Convert To</InputLabel>
                 <Select
                   value={format}
@@ -153,66 +223,36 @@ const ImageTypeConverterPage = () => {
               </FormControl>
             )}
 
-            {/* Preview & Download */}
+            {/* 📷 Preview & Download */}
             {imageSrc && convertedSrc && (
               <Stack spacing={2}>
                 <Typography variant="subtitle1">📷 Preview</Typography>
                 <Stack direction="row" spacing={4} justifyContent="center">
-                  <Box>
-                    <img src={imageSrc} alt="Original" width={200} className="rounded shadow" />
-                    <Typography variant="body2" className="text-center mt-1">
+                  <Box sx={{ textAlign: 'center' }}>
+                    <img src={imageSrc} alt="Original" width={200} style={{ borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }} />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
                       Original ({originalFormat.toUpperCase()})
                     </Typography>
                   </Box>
-                  <Box>
-                    <img src={convertedSrc} alt="Converted" width={200} className="rounded shadow" />
-                    <Typography variant="body2" className="text-center mt-1">
+                  <Box sx={{ textAlign: 'center' }}>
+                    <img src={convertedSrc} alt="Converted" width={200} style={{ borderRadius: 8, boxShadow: '0 2px 6px rgba(0,0,0,0.1)' }} />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
                       Converted ({normalizeFormat(format).toUpperCase()})
                     </Typography>
                   </Box>
                 </Stack>
-                <Button variant="outlined" color="success" onClick={handleDownload}>
+                <Button
+                  variant="outlined"
+                  color="success"
+                  onClick={handleDownload}
+                  sx={{ textTransform: 'none', fontWeight: 500 }}
+                >
                   Download Converted Image
                 </Button>
               </Stack>
             )}
           </CardContent>
-        </Card>
-
-        {/* Info Section */}
-        <Card>
-          <CardContent className="space-y-4">
-            <Typography variant="h5">What is Image Format Conversion?</Typography>
-            <Typography variant="body2" color="textSecondary">
-              Image format conversion is the process of changing an image from one file type to another—like converting a PNG to JPEG or a WebP to PNG. Each format has its own strengths:
-              <ul className="list-disc list-inside mt-2">
-                <li><strong>JPEG:</strong> Great for photos, small size, lossy compression</li>
-                <li><strong>PNG:</strong> Supports transparency, lossless quality</li>
-                <li><strong>WebP:</strong> Modern format with excellent compression and quality balance</li>
-              </ul>
-            </Typography>
-
-            <Divider />
-
-            <Typography variant="h5">Why Convert Image Formats?</Typography>
-            <Typography variant="body2" color="textSecondary">
-              Depending on your use case, converting image formats can help:
-              <ul className="list-disc list-inside mt-2">
-                <li>🌐 Optimize images for web performance</li>
-                <li>📱 Reduce file size for mobile apps</li>
-                <li>🎨 Preserve transparency or quality</li>
-                <li>🧩 Meet platform-specific format requirements</li>
-              </ul>
-            </Typography>
-
-            <Divider />
-
-            <Typography variant="h5">Is It Safe?</Typography>
-            <Typography variant="body2" color="textSecondary">
-              Yes. Your original image stays untouched. All conversions happen locally in your browser—no upload required. You can safely experiment with formats without losing your original file.
-            </Typography>
-          </CardContent>
-        </Card>
+                  </Card>
       </Box>
     </Box>
   );

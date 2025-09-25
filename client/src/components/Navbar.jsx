@@ -1,5 +1,3 @@
-// src/components/Navbar.jsx
-
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -18,6 +16,7 @@ import {
   Dashboard,
   AccountCircle,
   Psychology,
+  Group,
 } from '@mui/icons-material';
 import { AuthContext } from '../context/AuthContext';
 
@@ -35,7 +34,7 @@ const Navbar = () => {
       }}
     >
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: 4 }}>
-        {/* Left: Logo */}
+        {/* 🔰 Left: Logo */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography
             variant="h6"
@@ -51,7 +50,7 @@ const Navbar = () => {
           </Typography>
         </Box>
 
-        {/* Center: Navigation */}
+        {/* 🧭 Center: Navigation */}
         <Box sx={{ display: 'flex', gap: 2 }}>
           <Button component={Link} to="/tools" startIcon={<Build />} sx={{ color: '#333' }}>
             Tools
@@ -63,6 +62,14 @@ const Navbar = () => {
             About
           </Button>
 
+          {/* 👥 Users route only for admins */}
+          {!loading && user?.role === 'admin' && (
+            <Button component={Link} to="/admin/users" startIcon={<Group />} sx={{ color: '#333' }}>
+              Users
+            </Button>
+          )}
+
+          {/* 🔐 Auth links for guests */}
           {!loading && !user && (
             <>
               <Button component={Link} to="/signin" startIcon={<Login />} sx={{ color: '#333' }}>
@@ -75,7 +82,7 @@ const Navbar = () => {
           )}
         </Box>
 
-        {/* Right: Greeting + Dashboard */}
+        {/* 🎯 Right: Greeting + Dashboard */}
         {!loading && user && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -84,6 +91,7 @@ const Navbar = () => {
                 Hey {user.firstName || user.username} 👋
               </Typography>
             </Box>
+
             <Button
               variant="contained"
               size="small"
@@ -97,7 +105,7 @@ const Navbar = () => {
           </Box>
         )}
 
-        {/* Optional: Loading Spinner */}
+        {/* ⏳ Loading Spinner */}
         {loading && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <CircularProgress size={20} color="inherit" />

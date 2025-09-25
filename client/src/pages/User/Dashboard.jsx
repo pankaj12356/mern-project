@@ -7,6 +7,8 @@ import HeroBanner from '../../components/DashBoard/HeroBanner';
 import ContributorCard from '../../components/DashBoard/ContributorCard';
 import UpdateFields from '../../components/DashBoard/UpdateFields';
 import QuickAccessGrid from '../../components/DashBoard/QuickAccessGrid';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const UserDashboard = () => {
   const { user, setUser, logout, loading } = useContext(AuthContext);
@@ -19,7 +21,6 @@ const UserDashboard = () => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
-  const [avatarKey, setAvatarKey] = useState(Date.now()); // NEW
 
   useEffect(() => {
     if (user?.id) {
@@ -41,7 +42,7 @@ const UserDashboard = () => {
       await axios.post('/api/auth/logout', {}, { withCredentials: true });
       logout();
     } catch (err) {
-      console.error('❌ Logout failed:', err.message);
+      toast.error('❌ Logout failed');
     }
   };
 
@@ -55,9 +56,10 @@ const UserDashboard = () => {
       const res = await axios.put('/api/auth/update-profile', formData, { withCredentials: true });
       const patched = { ...res.data.user, id: res.data.user.id || res.data.user._id };
       setUser(patched);
-      alert('✅ Profile updated');
+      toast.success('✅ Profile updated');
     } catch (err) {
       setError(err.response?.data?.message || 'Internal server error');
+      toast.error('❌ Profile update failed');
     } finally {
       setIsUpdating(false);
     }
@@ -68,6 +70,7 @@ const UserDashboard = () => {
     setError('');
     if (formData.newPassword !== formData.confirmPassword) {
       setError('❌ Passwords do not match');
+      toast.error('❌ Passwords do not match');
       setIsUpdating(false);
       return;
     }
@@ -76,10 +79,11 @@ const UserDashboard = () => {
         oldPassword: formData.oldPassword.trim(),
         newPassword: formData.newPassword
       }, { withCredentials: true });
-      alert('🔐 Password updated');
+      toast.success('🔐 Password updated');
       setFormData({ ...formData, oldPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
       setError(err.response?.data?.message || '❌ Password update failed');
+      toast.error('❌ Password update failed');
     } finally {
       setIsUpdating(false);
     }
@@ -88,26 +92,26 @@ const UserDashboard = () => {
   const handleImageUpload = async () => {
     setIsUpdating(true);
     if (!image) {
-      alert('Please select an image');
+      toast.error('⚠️ Please select an image');
       setIsUpdating(false);
       return;
     }
+
     const form = new FormData();
     form.append('image', image);
+
     try {
-      const res = await axios.put('/api/auth/update-profile-image', form, {
+      await axios.put('/api/auth/update-profile-image', form, {
         withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      const patched = {
-        ...res.data.user,
-        id: res.data.user.id || res.data.user._id
-      };
-      setUser(patched);
-      setAvatarKey(Date.now()); // NEW: force avatar refresh
-      alert('🖼️ Image updated');
+
+      toast.success('🖼️ Image updated');
+      setTimeout(() => window.location.reload(), 1500); // ✅ reload after toast
+
     } catch (err) {
       setError('❌ Image upload failed');
+      toast.error('❌ Image upload failed');
     } finally {
       setIsUpdating(false);
     }
@@ -115,6 +119,7 @@ const UserDashboard = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#E7F2EF', p: 4 }}>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Box sx={{ maxWidth: '1600px', mx: 'auto' }}>
         {/* Hero Banner */}
         <Box sx={{
@@ -143,7 +148,7 @@ const UserDashboard = () => {
               backgroundColor: '#A1C2BD',
               color: '#19183B',
             }}>
-              <ContributorCard user={user} avatarKey={avatarKey} /> {/* UPDATED */}
+              <ContributorCard user={user} />
             </Paper>
           </Box>
 

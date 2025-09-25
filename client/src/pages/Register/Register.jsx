@@ -1,5 +1,3 @@
-// src/pages/Auth/Register.jsx
-
 import { useState, useContext, useEffect } from 'react';
 import {
   TextField,
@@ -15,6 +13,8 @@ import {
 import { registerUser } from '../../services/authService';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const roles = ['student', 'employee', 'corporation'];
 
@@ -30,7 +30,6 @@ const Register = () => {
   });
 
   const [preview, setPreview] = useState(null);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
@@ -54,10 +53,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!formData.role || !formData.email.includes('@')) {
-      setError('Please select a role and enter a valid email.');
+      toast.error('Please select a role and enter a valid email.');
       return;
     }
 
@@ -75,14 +73,15 @@ const Register = () => {
           ...res.data.user,
           id: res.data.user.id || res.data.user._id,
         };
-        login(patchedUser); // ✅ Set context immediately
-        navigate('/user/dashboard'); // ✅ No reload needed
+        login(patchedUser);
+        toast.success('🎉 Registration successful!');
+        setTimeout(() => navigate('/user/dashboard'), 1500);
       } else {
-        setError('Unexpected response from server.');
+        toast.error('Unexpected response from server.');
       }
     } catch (err) {
       console.error('❌ Registration failed:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Registration failed');
+      toast.error(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -90,6 +89,7 @@ const Register = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: '#E7F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Card sx={{ maxWidth: 1000, width: '100%', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, overflow: 'hidden', boxShadow: 6 }}>
         {/* Left Side: Branding */}
         <Box sx={{ backgroundColor: '#A1C2BD', color: '#19183B', p: 4, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -195,15 +195,6 @@ const Register = () => {
                 />
                 {preview && <Avatar src={preview} alt="Preview" sx={{ width: 48, height: 48 }} />}
               </Grid>
-
-              {/* Error Message */}
-              {error && (
-                <Grid item xs={12}>
-                  <Typography variant="body2" color="error">
-                    {error}
-                  </Typography>
-                </Grid>
-              )}
 
               {/* Submit Button */}
               <Grid item xs={12}>

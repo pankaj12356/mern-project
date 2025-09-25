@@ -3,7 +3,7 @@ import RootLayout from './layout/RootLayout';
 import Home from './pages/Home/Home';
 import Register from './pages/Register/Register';
 import SignIn from './pages/SignIn/SignIn';
-import AdminDashboard from './pages/Admin/Dashboard';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserDashboard from './pages/User/Dashboard';
 import UuidTool from './pages/Tools/UUIDGenerator';
@@ -15,8 +15,9 @@ import Base64Converter from './pages/Tools/Base64Tool';
 import ImageCompressor from './pages/Tools/ImageConmpressor';
 import ImageTypeConverter from './pages/Tools/ImageTypeConverter';
 import SetupCommandsPage  from './pages/Code/SetupCommandsPage';
+import ManageUsers from './pages/Admin/ManageUsers';
 import { Build, Code } from '@mui/icons-material';
-
+// import AdminDashboard from './pages/Admin/AdminDashboard';
 import AboutUs from './pages/AboutUs/AboutUs';
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           {/* Protected admin route */}
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="admin/dashboard" element={<AdminDashboard />} />
+            <Route path="admin/users" element={<ManageUsers />} />
           </Route>
 
           {/* Protected user route */}

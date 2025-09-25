@@ -5,6 +5,16 @@ const HeroBanner = ({ user }) => {
     ? `${user.firstName} ${user.lastName}`
     : user.username;
 
+  const getInitials = () => {
+    if (user.firstName && user.lastName) {
+      return `${user.firstName[0].toUpperCase()}${user.lastName[0].toUpperCase()}`;
+    }
+    if (user.username) {
+      return user.username.slice(0, 2).toUpperCase();
+    }
+    return '👤';
+  };
+
   return (
     <Card
       sx={{
@@ -22,8 +32,7 @@ const HeroBanner = ({ user }) => {
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2.5 }}>
         <Avatar
-          src={user.profileImage}
-          alt={user.username}
+          alt={fullName}
           sx={{
             width: 72,
             height: 72,
@@ -33,7 +42,7 @@ const HeroBanner = ({ user }) => {
             color: '#1e293b',
           }}
         >
-          {!user.profileImage && user.username?.[0]?.toUpperCase()}
+          {getInitials()}
         </Avatar>
 
         <Box>
