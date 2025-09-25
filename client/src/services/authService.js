@@ -1,9 +1,10 @@
 import axios from 'axios';
 
-// Ensure cookies (accessToken, refreshToken) are sent with every request
+// ✅ Ensure cookies (accessToken, refreshToken) are sent with every request
 axios.defaults.withCredentials = true;
 
-const API = '/api/auth'; // Vite proxy will forward this to your backend
+// ✅ Use environment variable for backend URL
+const API = import.meta.env.VITE_BACKEND_URL + '/auth';
 
 // 🔐 Register new user (multipart/form-data)
 export const registerUser = async (formData) => {
@@ -11,6 +12,7 @@ export const registerUser = async (formData) => {
     const response = await axios.post(`${API}/register`, formData);
     return response;
   } catch (error) {
+    console.error('❌ Register error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -21,6 +23,7 @@ export const loginUser = async (credentials) => {
     const response = await axios.post(`${API}/login`, credentials);
     return response;
   } catch (error) {
+    console.error('❌ Login error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -31,6 +34,7 @@ export const getCurrentUser = async () => {
     const response = await axios.get(`${API}/profile`);
     return response;
   } catch (error) {
+    console.error('❌ Get user error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -41,6 +45,7 @@ export const logoutUser = async () => {
     const response = await axios.post(`${API}/logout`);
     return response;
   } catch (error) {
+    console.error('❌ Logout error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -51,6 +56,7 @@ export const updatePassword = async (data) => {
     const response = await axios.put(`${API}/update-password`, data);
     return response;
   } catch (error) {
+    console.error('❌ Update password error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -61,6 +67,7 @@ export const updateProfile = async (data) => {
     const response = await axios.put(`${API}/update-profile`, data);
     return response;
   } catch (error) {
+    console.error('❌ Update profile error:', error.response?.data || error.message);
     throw error;
   }
 };
@@ -71,6 +78,7 @@ export const updateProfileImage = async (formData) => {
     const response = await axios.put(`${API}/update-profile-image`, formData);
     return response;
   } catch (error) {
+    console.error('❌ Update image error:', error.response?.data || error.message);
     throw error;
   }
 };

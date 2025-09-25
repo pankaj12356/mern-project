@@ -11,6 +11,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from '@mui/material';
+import QuickToolSwitcher from '../../components/QuickToolsSwitcher'; // ✅ Integrated
 
 const Base64Converter = () => {
   const [mode, setMode] = useState('encode');
@@ -23,13 +24,8 @@ const Base64Converter = () => {
     setError('');
     setCopied(false);
     try {
-      if (mode === 'encode') {
-        const encoded = btoa(input);
-        setOutput(encoded);
-      } else {
-        const decoded = atob(input);
-        setOutput(decoded);
-      }
+      const result = mode === 'encode' ? btoa(input) : atob(input);
+      setOutput(result);
     } catch (err) {
       setOutput('');
       setError('❌ Conversion failed: ' + err.message);
@@ -47,14 +43,39 @@ const Base64Converter = () => {
   };
 
   return (
-    <Box className="min-h-screen bg-gray-100 p-6 flex justify-center items-start">
-      <Card className="w-full max-w-4xl shadow-lg">
-        <CardContent className="space-y-6">
-          <Typography variant="h4" className="text-indigo-600 font-bold text-center">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#E7F2EF',
+        py: 8,
+        px: 4,
+        display: 'flex',
+        justifyContent: 'center',
+        position: 'relative',
+      }}
+    >
+      <Card sx={{ width: '100%', maxWidth: 800, boxShadow: 4, borderRadius: 3 }}>
+        <CardContent sx={{ px: 4, py: 6 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              color: '#19183B',
+              fontWeight: 'bold',
+              textAlign: 'center',
+              mb: 2,
+            }}
+          >
             Base64 Converter 📦
           </Typography>
 
-          <Typography variant="body2" color="textSecondary" className="text-center">
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#475569',
+              textAlign: 'center',
+              mb: 4,
+            }}
+          >
             Encode or decode Base64 strings for secure transmission, compact storage, or debugging.
           </Typography>
 
@@ -64,6 +85,7 @@ const Base64Converter = () => {
             onChange={(e, val) => val && setMode(val)}
             fullWidth
             color="primary"
+            sx={{ mb: 3 }}
           >
             <ToggleButton value="encode">Encode</ToggleButton>
             <ToggleButton value="decode">Decode</ToggleButton>
@@ -77,13 +99,29 @@ const Base64Converter = () => {
             variant="outlined"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            sx={{ mb: 3 }}
           />
 
-          <Button variant="contained" color="primary" onClick={handleConvert}>
+          <Button
+            variant="contained"
+            onClick={handleConvert}
+            sx={{
+              backgroundColor: '#10B981',
+              color: '#FFFFFF',
+              textTransform: 'none',
+              fontWeight: 500,
+              '&:hover': { backgroundColor: '#059669' },
+              mb: 3,
+            }}
+          >
             {mode === 'encode' ? 'Encode to Base64' : 'Decode from Base64'}
           </Button>
 
-          {error && <Alert severity="error">{error}</Alert>}
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
 
           {output && (
             <Stack spacing={2}>
@@ -96,13 +134,21 @@ const Base64Converter = () => {
                 value={output}
                 InputProps={{ readOnly: true }}
               />
-              <Button variant="outlined" color="success" onClick={handleCopy}>
+              <Button
+                variant="outlined"
+                color="success"
+                onClick={handleCopy}
+                sx={{ textTransform: 'none', fontWeight: 500 }}
+              >
                 {copied ? '✅ Copied!' : 'Copy to Clipboard'}
               </Button>
             </Stack>
           )}
         </CardContent>
       </Card>
+
+      {/* ✅ Floating tool switcher for seamless navigation */}
+      <QuickToolSwitcher />
     </Box>
   );
 };

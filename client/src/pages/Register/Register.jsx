@@ -1,4 +1,6 @@
-import { useState, useContext } from 'react';
+// src/pages/Auth/Register.jsx
+
+import { useState, useContext, useEffect } from 'react';
 import {
   TextField,
   Button,
@@ -7,9 +9,10 @@ import {
   Avatar,
   Box,
   Card,
-  CardContent
+  CardContent,
+  Grid,
 } from '@mui/material';
-import { registerUser, getCurrentUser } from '../../services/authService';
+import { registerUser } from '../../services/authService';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -28,8 +31,15 @@ const Register = () => {
 
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -46,6 +56,12 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
+    if (!formData.role || !formData.email.includes('@')) {
+      setError('Please select a role and enter a valid email.');
+      return;
+    }
+
+    setLoading(true);
     try {
       const payload = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
@@ -55,135 +71,157 @@ const Register = () => {
       const res = await registerUser(payload);
 
       if (res.status === 201 && res.data?.user) {
-        alert(`✅ Welcome ${res.data.user.firstName}! Your account has been created.`);
-
-        const profileRes = await getCurrentUser();
-        login(profileRes.data.user.username, profileRes.data.user.role);
-
-        navigate('/user/dashboard');
+        const patchedUser = {
+          ...res.data.user,
+          id: res.data.user.id || res.data.user._id,
+        };
+        login(patchedUser); // ✅ Set context immediately
+        navigate('/user/dashboard'); // ✅ No reload needed
       } else {
         setError('Unexpected response from server.');
       }
     } catch (err) {
       console.error('❌ Registration failed:', err.response?.data || err.message);
       setError(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <Card className="w-full max-w-5xl shadow-lg grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#E7F2EF', display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2 }}>
+      <Card sx={{ maxWidth: 1000, width: '100%', display: 'flex', flexDirection: { xs: 'column', md: 'row' }, overflow: 'hidden', boxShadow: 6 }}>
         {/* Left Side: Branding */}
-        <Box className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-8 flex flex-col justify-center">
-          <Typography variant="h4" fontWeight="bold" className="mb-2">
+        <Box sx={{ backgroundColor: '#A1C2BD', color: '#19183B', p: 4, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
             Join CoderzHub 🚀
           </Typography>
           <Typography variant="body1">
-            Create your account to access tools, dashboards, and developer insights.
+            Create your account to access ready-made tools, setup snippets, and contributor dashboards.
           </Typography>
-          <Box className="mt-6">
-            <img src="/assets/signup-illustration.svg" alt="Signup" className="w-full" />
+          <Box sx={{ mt: 4 }}>
+            <img src="/assets/signup-illustration.svg" alt="Signup" style={{ width: '100%' }} />
           </Box>
         </Box>
 
         {/* Right Side: Form */}
-        <CardContent className="p-8 space-y-4">
-          <Typography variant="h5" className="text-center font-semibold text-gray-800">
+        <CardContent sx={{ flex: 1, p: 4 }}>
+          <Typography variant="h5" fontWeight={600} align="center" gutterBottom>
             Create Your CoderzHub Account
           </Typography>
 
-          <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-4">
-            <Box className="flex gap-4">
-              <TextField
-                label="First Name"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-              <TextField
-                label="Last Name"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-            </Box>
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="First Name"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Last Name"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Password"
+                  name="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  fullWidth
+                  required
+                />
+              </Grid>
 
-            <TextField
-              label="Username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
+              {/* Role Selection */}
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  label="Select Your Role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  style={{ width: '180px' }}
+                  required
+                >
+                  {roles.map((role) => (
+                    <MenuItem key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
 
-            <TextField
-              label="Email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
+              {/* Profile Image Upload */}
+              <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <input
+                  type="file"
+                  name="profileImage"
+                  accept="image/*"
+                  onChange={handleChange}
+                  style={{ fontSize: '0.9rem' }}
+                />
+                {preview && <Avatar src={preview} alt="Preview" sx={{ width: 48, height: 48 }} />}
+              </Grid>
 
-            <TextField
-              label="Password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              fullWidth
-              required
-            />
+              {/* Error Message */}
+              {error && (
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="error">
+                    {error}
+                  </Typography>
+                </Grid>
+              )}
 
-            <TextField
-              select
-              label="Role"
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              fullWidth
-              required
-            >
-              {roles.map((role) => (
-                <MenuItem key={role} value={role}>
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </MenuItem>
-              ))}
-            </TextField>
+              {/* Submit Button */}
+              <Grid item xs={12}>
+                <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading}>
+                  {loading ? 'Registering...' : 'Register'}
+                </Button>
+              </Grid>
 
-            <Box className="flex items-center gap-4">
-              <input
-                type="file"
-                name="profileImage"
-                accept="image/*"
-                onChange={handleChange}
-                className="block w-full text-sm text-gray-600"
-              />
-              {preview && <Avatar src={preview} alt="Preview" sx={{ width: 48, height: 48 }} />}
-            </Box>
-
-            {error && (
-              <Typography variant="body2" color="error">
-                {error}
-              </Typography>
-            )}
-
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-              Register
-            </Button>
-
-            <Typography variant="body2" className="text-center mt-2">
-              Already have an account?{' '}
-              <Link to="/signin" className="text-blue-600 hover:underline">
-                Sign in here
-              </Link>
-            </Typography>
+              {/* Sign-in Link */}
+              <Grid item xs={12}>
+                <Typography variant="body2" align="center">
+                  Already have an account?{' '}
+                  <Link to="/signin" style={{ color: '#6366f1', textDecoration: 'none' }}>
+                    Sign in here
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
           </form>
         </CardContent>
       </Card>

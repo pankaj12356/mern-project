@@ -16,6 +16,7 @@ import ImageCompressor from './pages/Tools/ImageConmpressor';
 import ImageTypeConverter from './pages/Tools/ImageTypeConverter';
 import SetupCommandsPage  from './pages/Code/SetupCommandsPage';
 import { Build, Code } from '@mui/icons-material';
+
 import AboutUs from './pages/AboutUs/AboutUs';
 function App() {
   return (

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevPulse Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white font-sans">
+
+  <!-- Hero Profile Banner -->
+  <section class="bg-gradient-to-r from-indigo-700 to-purple-800 p-8 flex items-center gap-6">
+    <img src="https://via.placeholder.com/140" alt="Profile" class="w-36 h-36 rounded-full border-4 border-white shadow-lg" />
+    <div>
+      <h1 class="text-4xl font-bold">Welcome, premaaa patel 👋</h1>
+      <p class="text-lg text-gray-200 mt-2">Role: <span class="bg-black px-2 py-1 rounded text-green-400">Employee</span></p>
+      <p class="text-sm text-gray-300 mt-1">Status: Active | Last login: 23:49 IST</p>
+    </div>
+  </section>
+
+  <!-- Tool Cards -->
+  <section class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-gray-900 p-6 rounded-lg shadow hover:shadow-xl transition">
+      <h2 class="text-xl font-semibold text-indigo-400">🛠 Session Debugger</h2>
+      <p class="text-gray-400 text-sm mt-2">Tracks hydration and propagation issues.</p>
+      <p class="text-green-400 text-xs mt-1">Used 12 times this week</p>
+    </div>
+    <div class="bg-gray-900 p-6 rounded-lg shadow hover:shadow-xl transition">
+      <h2 class="text-xl font-semibold text-indigo-400">🔐 Form Guard</h2>
+      <p class="text-gray-400 text-sm mt-2">Prevents invalid submissions and auto-closes forms.</p>
+      <p class="text-yellow-400 text-xs mt-1">3 active flags</p>
+    </div>
+    <div class="bg-gray-900 p-6 rounded-lg shadow hover:shadow-xl transition">
+      <h2 class="text-xl font-semibold text-indigo-400">📣 Toast Feedback</h2>
+      <p class="text-gray-400 text-sm mt-2">Instant feedback via react-hot-toast.</p>
+      <p class="text-blue-400 text-xs mt-1">Last triggered: 2 hours ago</p>
+    </div>
+  </section>
+
+  <!-- Code Snippet Panel -->
+  <section class="px-8 py-6">
+    <h2 class="text-2xl font-bold text-white mb-4">💻 Code Snippet</h2>
+    <div class="bg-gray-900 p-6 rounded-lg shadow-md">
+      <pre class="bg-gray-800 p-4 rounded text-green-400 text-sm overflow-x-auto">
+        // AuthProvider session guard
+        useEffect(() => {
+          if (!session?.user?.id) {
+            router.push('/login');
+          }
+        }, [session]);
+      </pre>
+    </div>
+  </section>
+
+  <!-- Contributor Insights -->
+  <section class="px-8 py-6">
+    <h2 class="text-2xl font-bold text-white mb-4">📊 Contributor Insights</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="bg-gray-900 p-4 rounded shadow">
+        <h3 class="text-indigo-400 font-semibold">Recent Commits</h3>
+        <ul class="text-sm text-gray-300 mt-2 space-y-1">
+          <li>✅ Refactored backend controllers</li>
+          <li>🐛 Fixed MongoDB URI error</li>
+          <li>🔒 Patched session fallback</li>
+        </ul>
+      </div>
+      <div class="bg-gray-900 p-4 rounded shadow">
+        <h3 class="text-indigo-400 font-semibold">Flags & Logs</h3>
+        <ul class="text-sm text-gray-300 mt-2 space-y-1">
+          <li>⚠️ Form guard triggered on /profile</li>
+          <li>🧪 Debug log: session undefined</li>
+          <li>📁 Plugin load: analytics.js</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-12 text-center text-gray-500 py-6">
+    &copy; 2025 DevPulse by Pankaj. Built for developers, by a developer.
+  </footer>
+
+</body>
+</html>

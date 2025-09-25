@@ -1,14 +1,14 @@
+// src/components/Navbar.jsx
+
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Psychology } from '@mui/icons-material';
-
 import {
   AppBar,
   Toolbar,
   Typography,
   Button,
   Box,
-  IconButton
+  CircularProgress,
 } from '@mui/material';
 import {
   Code,
@@ -16,12 +16,13 @@ import {
   Login,
   PersonAdd,
   Dashboard,
-  AccountCircle
+  AccountCircle,
+  Psychology,
 } from '@mui/icons-material';
 import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
 
   return (
     <AppBar
@@ -36,7 +37,6 @@ const Navbar = () => {
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: 4 }}>
         {/* Left: Logo */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-         
           <Typography
             variant="h6"
             component={Link}
@@ -62,7 +62,8 @@ const Navbar = () => {
           <Button component={Link} to="/about" startIcon={<Psychology />} sx={{ color: '#333' }}>
             About
           </Button>
-          {!user && (
+
+          {!loading && !user && (
             <>
               <Button component={Link} to="/signin" startIcon={<Login />} sx={{ color: '#333' }}>
                 Sign In
@@ -75,7 +76,7 @@ const Navbar = () => {
         </Box>
 
         {/* Right: Greeting + Dashboard */}
-        {user && (
+        {!loading && user && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <AccountCircle sx={{ color: '#333' }} />
@@ -93,6 +94,16 @@ const Navbar = () => {
             >
               Dashboard
             </Button>
+          </Box>
+        )}
+
+        {/* Optional: Loading Spinner */}
+        {loading && (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CircularProgress size={20} color="inherit" />
+            <Typography variant="body2" sx={{ color: '#333' }}>
+              Loading...
+            </Typography>
           </Box>
         )}
       </Toolbar>
